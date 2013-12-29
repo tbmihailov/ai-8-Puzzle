@@ -25,7 +25,6 @@ namespace AI.EightPuzzle
         public int[][] Tiles
         {
             get { return _tiles; }
-            set { _tiles = value; }
         }
 
         List<Board> _nextStates;
