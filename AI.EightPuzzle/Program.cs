@@ -12,15 +12,16 @@ namespace AI.EightPuzzle
         //http://www.cs.princeton.edu/courses/archive/fall11/cos226/checklist/8puzzle.html
         static void Main(string[] args)
         {
-            var board = new Board(new int[][]{
-            new int[]{1,2,3},
-            new int[]{4,5,6},
-            new int[]{7,8,0},
+            var initialBoard = new Board(new int[][]{
+            new int[]{6,5,3},
+            new int[]{2,4,8},
+            new int[]{7,0,1},
             });
 
-            var board1 = Board.GetDefaultGoalBoard(3);
-            Console.WriteLine(board1.ToString());
-            bool isGoalState = board1.IsInGoalState();
+            var solver = new Solver(initialBoard, 2000);
+            solver.WriteOutputToConsole();
+
+            Console.ReadLine();
         }
     }
 }
