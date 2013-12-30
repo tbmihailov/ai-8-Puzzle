@@ -9,16 +9,14 @@ namespace AI.EightPuzzle
 {
     public class Board
     {
-        private int _size;
         public int Size
         {
-            get { return _size; }
+            get { return _tiles.Length; }
         }
 
         public Board(int[][] tiles)
         {
             this._tiles = tiles;
-            this._size = tiles.Length;
         }
 
         int[][] _tiles;
@@ -27,10 +25,172 @@ namespace AI.EightPuzzle
             get { return _tiles; }
         }
 
-        List<Board> _nextStates;
+        /// <summary>
+        /// Generates board states from moving left/right/up/down tiles
+        /// </summary>
+        /// <returns></returns>
         public List<Board> GetNextStates()
         {
-            throw new NotImplementedException();
+            Board board = this;
+            List<Board> nextStates = new List<Board>();
+
+            int freeTileRow = 0;
+            int freeTileColumn = 0;
+            GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
+
+            //move left tile
+            if (freeTileColumn > 0)
+            {
+                nextStates.Add(this.GetBoardFromMoveLeftTile());
+            }
+
+            //move right tile
+            if (freeTileColumn < board.Size - 1)
+            {
+                nextStates.Add(this.GetBoardFromMoveRightTile());
+            }
+
+            //move up tile
+            if (freeTileRow > 0)
+            {
+                nextStates.Add(this.GetBoardFromMoveUpTile());
+            }
+
+
+            if (freeTileRow < board.Size - 1)
+            {
+                nextStates.Add(this.GetBoardFromMoveDownTile());
+            }
+
+            return nextStates;
+        }
+
+        public Board GetBoardFromMoveLeftTile()
+        {
+            Board board = this;
+
+            int freeTileRow = 0;
+            int freeTileColumn = 0;
+            GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
+
+
+            if (freeTileColumn == 0)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var tiles = board.Tiles;
+            int tileToMoveRow = freeTileRow;
+            int tileToMoveColumn = freeTileColumn - 1;//left tile
+
+            //swap tiles position
+            int value = tiles[tileToMoveRow][tileToMoveColumn];
+            tiles[tileToMoveRow][tileToMoveColumn] = 0;
+            tiles[freeTileRow][freeTileColumn] = value;
+
+            var newBoardState = new Board(tiles);
+
+            return newBoardState;
+        }
+
+        public Board GetBoardFromMoveRightTile()
+        {
+            Board board = this;
+
+            int freeTileRow = 0;
+            int freeTileColumn = 0;
+            GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
+
+            if (freeTileColumn >= (board.Size - 1))//last column
+            {
+                throw new InvalidOperationException();
+            }
+
+            var tiles = board.Tiles;
+            int tileToMoveRow = freeTileRow;
+            int tileToMoveColumn = freeTileColumn + 1;//right tile
+
+            //swap tiles position
+            int value = tiles[tileToMoveRow][tileToMoveColumn];
+            tiles[tileToMoveRow][tileToMoveColumn] = 0;
+            tiles[freeTileRow][freeTileColumn] = value;
+
+            var newBoardState = new Board(tiles);
+
+            return newBoardState;
+        }
+
+        public Board GetBoardFromMoveUpTile()
+        {
+            Board board = this;
+
+            int freeTileRow = 0;
+            int freeTileColumn = 0;
+            GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
+
+            if (freeTileRow == 0)//zero row
+            {
+                throw new InvalidOperationException();
+            }
+
+            var tiles = board.Tiles;
+            int tileToMoveRow = freeTileRow - 1;//up tile
+            int tileToMoveColumn = freeTileColumn;
+
+            //swap tiles position
+            int value = tiles[tileToMoveRow][tileToMoveColumn];
+            tiles[tileToMoveRow][tileToMoveColumn] = 0;
+            tiles[freeTileRow][freeTileColumn] = value;
+
+            var newBoardState = new Board(tiles);
+
+            return newBoardState;
+        }
+
+        public Board GetBoardFromMoveDownTile()
+        {
+            Board board = this;
+
+            int freeTileRow = 0;
+            int freeTileColumn = 0;
+            GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
+
+            if (freeTileRow >= board.Size - 1)//bottom row
+            {
+                throw new InvalidOperationException();
+            }
+
+            var tiles = board.Tiles;
+            int tileToMoveRow = freeTileRow + 1;//down tile
+            int tileToMoveColumn = freeTileColumn;
+
+            //swap tiles position
+            int value = tiles[tileToMoveRow][tileToMoveColumn];
+            tiles[tileToMoveRow][tileToMoveColumn] = 0;
+            tiles[freeTileRow][freeTileColumn] = value;
+
+            var newBoardState = new Board(tiles);
+
+            return newBoardState;
+        }
+
+        private void GetEmptyTilePoint(Board board, out int zeroRow, out int zeroColumn)
+        {
+            for (int i = 0; i < board.Tiles.Length; i++)
+            {
+                for (int j = 0; j < board.Tiles[i].Length; j++)
+                {
+                    if (board.Tiles[i][j] == 0)
+                    {
+                        zeroRow = i;
+                        zeroColumn = j;
+
+                        return;
+                    }
+                }
+            }
+
+            throw new ArgumentException("Board has no empty tile");
         }
 
         /// <summary>
@@ -88,6 +248,87 @@ namespace AI.EightPuzzle
             }
 
             return true;
+        }
+
+        /// <summary>
+        ///  Check if solvable
+        /// </summary>
+        /// Odd board size:
+        /// Given a board, an inversion is any pair of blocks i and j where i < j but i appears after j when considering the board in row-major order (row 0, followed by row 1, and so forth).
+        ///         1  2  3              1  2  3              1  2  3              1  2  3              1  2  3
+        ///         4  5  6     =>       4  5  6     =>       4     6     =>          4  6     =>       4  6  7
+        ///         8  7                 8     7              8  5  7              8  5  7              8  5 
+        ///
+        /// 1 2 3 4 5 6 8 7      1 2 3 4 5 6 8 7      1 2 3 4 6 8 5 7      1 2 3 4 6 8 5 7      1 2 3 4 6 7 8 5
+        ///
+        ///  inversions = 1       inversions = 1       inversions = 3       inversions = 3       inversions = 3
+        ///          (8-7)                 (8-7)        (6-5 8-5 8-7)        (6-5 8-5 8-7)         (6-5 7-5 8-5)
+        ///If the board size N is an odd integer, then each legal move changes the number of inversions by an even number. Thus, if a board has an odd number of inversions, then it cannot lead to the goal board by a sequence of legal moves because the goal board has an even number of inversions (zero).
+        ///The converse is also true: if a board has an even number of inversions, then it can lead to the goal board by a sequence of legal moves.
+        ///
+        ///            1  3              1     3              1  2  3              1  2  3              1  2  3
+        ///         4  2  5     =>       4  2  5     =>       4     5     =>       4  5        =>       4  5  6
+        ///         7  8  6              7  8  6              7  8  6              7  8  6              7  8 
+        /// 1 3 4 2 5 7 8 6      1 3 4 2 5 7 8 6      1 2 3 4 5 7 8 6      1 2 3 4 5 7 8 6      1 2 3 4 5 6 7 8
+        ///  inversions = 4       inversions = 4       inversions = 2       inversions = 2       inversions = 0
+        ///(3-2 4-2 7-6 8-6)   (3-2 4-2 7-6 8-6)            (7-6 8-6)            (7-6 8-6)         
+        ///
+        /// Even board size:
+        /// If the board size N is an even integer, then the parity of the number of inversions is not invariant. However, the parity of the number of inversions plus the row of the blank square is invariant: each legal move changes this sum by an even number. If this sum is even, then it cannot lead to the goal board by a sequence of legal moves; if this sum is odd, then it can lead to the goal board by a sequence of legal moves.
+        ///
+        ///    1  2  3  4           1  2  3  4           1  2  3  4           1  2  3  4           1  2  3  4
+        ///    5  6     8     =>    5  6     8     =>    5  6  7  8     =>    5  6  7  8     =>    5  6  7  8
+        ///    9 10  7 11           9 10  7 11           9 10    11           9 10 11              9 10 11 12
+        ///   13 14 15 12          13 14 15 12          13 14 15 12          13 14 15 12          13 14 15
+        ///
+        /// blank row = 1       blank row  = 1       blank row  = 2       blank row  = 2       blank row  = 3
+        ///inversions = 6       inversions = 6       inversions = 3       inversions = 3       inversions = 0
+        ///--------------       --------------       --------------       --------------       --------------
+        ///       sum = 7              sum = 7              sum = 5              sum = 5              sum = 3
+        /// <returns></returns>
+        public bool IsInSolvableState()
+        {
+            //filll values in one dimensional array
+            List<int> values = new List<int>();
+            for (int i = 0; i < Tiles.Length; i++)
+            {
+                for (int j = 0; j < Tiles[i].Length; j++)
+                {
+                    if (Tiles[i][j] != 0)
+                    {
+                        values.Add(Tiles[i][j]);
+                    }
+                }
+            }
+
+            //count "inversions"
+            int inversionsCount = 0;
+            for (int valIndex = 0; valIndex < values.Count; valIndex++)
+            {
+                for (int valSuccIndex = valIndex + 1; valSuccIndex < values.Count; valSuccIndex++)
+                {
+                    if (values[valIndex] < values[valSuccIndex])
+                    {
+                        inversionsCount++;
+                    }
+                }
+            }
+
+            //check if solvable
+            if (Size % 2 != 0)//odd
+            {
+                return inversionsCount % 2==0;
+            }
+            else//even
+            {
+                int emptyTileRow = 0;
+                int emptyTileColumn = 0;
+                GetEmptyTilePoint(this, out emptyTileRow, out emptyTileColumn);
+
+                int valueCheck = inversionsCount + emptyTileRow;
+
+                return valueCheck % 2 != 0;
+            }
         }
 
         /// <summary>
