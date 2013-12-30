@@ -142,7 +142,7 @@ namespace AI.EightPuzzle.Tests
                             };
             Board target = new Board(tiles);
             int expected = 5;
-            int actual = target.HammingValue();
+            int actual = target.HammingPriority();
             Assert.AreEqual(expected, actual);
         }
 
@@ -156,7 +156,7 @@ namespace AI.EightPuzzle.Tests
                             };
             Board target = new Board(tiles);
             int expected = 2;
-            int actual = target.HammingValue();
+            int actual = target.HammingPriority();
             Assert.AreEqual(expected, actual);
         }
 
@@ -169,7 +169,7 @@ namespace AI.EightPuzzle.Tests
                             new int[]{7,8,0},
                             };
             Board target = new Board(tiles);
-            bool actual = target.IsInGoalState();
+            bool actual = target.IsGoal();
 
             Assert.IsTrue(actual);
         }
@@ -183,7 +183,7 @@ namespace AI.EightPuzzle.Tests
                             new int[]{7,8,2},
                             };
             Board target = new Board(tiles);
-            bool actual = target.IsInGoalState();
+            bool actual = target.IsGoal();
 
             Assert.IsFalse(actual);
         }
@@ -198,7 +198,7 @@ namespace AI.EightPuzzle.Tests
                             };
             Board target = new Board(tiles);
             int expected = 10;
-            int actual = target.ManhattanValue();
+            int actual = target.ManhattanPriority();
             Assert.AreEqual(expected, actual);
         }
 
@@ -212,7 +212,7 @@ namespace AI.EightPuzzle.Tests
                             };
             Board target = new Board(tiles);
             int expected = 6;
-            int actual = target.ManhattanValue();
+            int actual = target.ManhattanPriority();
             Assert.AreEqual(expected, actual);
         }
 
@@ -358,7 +358,7 @@ namespace AI.EightPuzzle.Tests
 
 
             //actual
-            List<Board> actualBoards = initialBoard.GetNextStates();
+            List<Board> actualBoards = initialBoard.GetSuccessorStates();
 
 
             bool areAllOk = actualBoards[0].Equals(expectedBoard0)
@@ -377,7 +377,7 @@ namespace AI.EightPuzzle.Tests
                             };
             Board target = new Board(tiles);
             bool expected = false;
-            bool actual = target.IsInSolvableState();
+            bool actual = target.IsSolvable();
             Assert.AreEqual(expected, actual);
         }
 
@@ -391,7 +391,7 @@ namespace AI.EightPuzzle.Tests
                             };
             Board target = new Board(tiles);
             bool expected = true;
-            bool actual = target.IsInSolvableState();
+            bool actual = target.IsSolvable();
             Assert.AreEqual(expected, actual);
         }
 
@@ -408,7 +408,7 @@ namespace AI.EightPuzzle.Tests
 
             Board target = new Board(tiles);
             bool expected = true;
-            bool actual = target.IsInSolvableState();
+            bool actual = target.IsSolvable();
             Assert.AreEqual(expected, actual);
         }
     }
