@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace AI.EightPuzzle.Tests
 {
-    
-    
+
+
     /// <summary>
     ///This is a test class for BoardTest and is intended
     ///to contain all BoardTest Unit Tests
@@ -72,8 +72,8 @@ namespace AI.EightPuzzle.Tests
                             new int[]{4,5,6},
                             new int[]{7,8,0},
                             };
-            Board target = new Board(tiles); 
-            string expected = " 1 2 3\r\n 4 5 6\r\n 7 8 0"; 
+            Board target = new Board(tiles);
+            string expected = " 1 2 3\r\n 4 5 6\r\n 7 8 0";
             string actual;
             actual = target.ToString();
             Assert.AreEqual(expected, actual);
@@ -86,14 +86,14 @@ namespace AI.EightPuzzle.Tests
                             new int[]{1,5,3},
                             new int[]{4,2,6},
                             new int[]{7,8,0},
-                            }; 
+                            };
             Board target = new Board(tiles);
 
             int[][] otherTiles = new int[][]{
                             new int[]{1,5,3},
                             new int[]{4,2,6},
                             new int[]{7,8,0},
-                            }; 
+                            };
             Board otherBoard = new Board(otherTiles);
             bool areEqual = target.Equals(otherBoard);
             Assert.IsTrue(areEqual);
@@ -122,7 +122,7 @@ namespace AI.EightPuzzle.Tests
         [TestMethod()]
         public void Test_If_GetDefaultGoalBoard_Return_True_Goal_State()
         {
-            int size = 3; 
+            int size = 3;
             Board expected = new Board(new int[][]{
                             new int[]{1,2,3},
                             new int[]{4,5,6},
@@ -130,18 +130,6 @@ namespace AI.EightPuzzle.Tests
                             });
             Board actual = Board.GetDefaultGoalBoard(size);
             Assert.AreEqual(expected, actual);
-        }
-
-        [TestMethod()]
-        public void GetNextStatesTest()
-        {
-            int[][] tiles = null; // TODO: Initialize to an appropriate value
-            Board target = new Board(tiles); // TODO: Initialize to an appropriate value
-            List<Board> expected = null; // TODO: Initialize to an appropriate value
-            List<Board> actual;
-            actual = target.GetNextStates();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
         [TestMethod()]
@@ -153,7 +141,7 @@ namespace AI.EightPuzzle.Tests
                             new int[]{7,6,5},
                             };
             Board target = new Board(tiles);
-            int expected = 5; 
+            int expected = 5;
             int actual = target.HammingValue();
             Assert.AreEqual(expected, actual);
         }
@@ -166,7 +154,7 @@ namespace AI.EightPuzzle.Tests
                             new int[]{4,7,6},
                             new int[]{5,8,0},
                             };
-            Board target = new Board(tiles); 
+            Board target = new Board(tiles);
             int expected = 2;
             int actual = target.HammingValue();
             Assert.AreEqual(expected, actual);
@@ -180,9 +168,9 @@ namespace AI.EightPuzzle.Tests
                             new int[]{4,5,6},
                             new int[]{7,8,0},
                             };
-            Board target = new Board(tiles); 
+            Board target = new Board(tiles);
             bool actual = target.IsInGoalState();
-            
+
             Assert.IsTrue(actual);
         }
 
@@ -211,6 +199,216 @@ namespace AI.EightPuzzle.Tests
             Board target = new Board(tiles);
             int expected = 10;
             int actual = target.ManhattanValue();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void Test_ManhattanValue_Primer_2()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{1,7,3},
+                            new int[]{4,2,6},
+                            new int[]{5,8,0},
+                            };
+            Board target = new Board(tiles);
+            int expected = 6;
+            int actual = target.ManhattanValue();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void Test_GetBoard_From_Move_Left_Tile()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{4,0,6},
+                            new int[]{7,5,8},
+                            };
+            Board initialBoard = new Board(tiles);
+
+            //expected
+            int[][] expectedTiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{0,4,6},
+                            new int[]{7,5,8},
+                            };
+            Board expectedBoard = new Board(expectedTiles);
+
+
+            //actual
+            Board actualBoard = initialBoard.GetBoardFromMoveLeftTile();
+
+            bool areEqual = expectedBoard.Equals(actualBoard);
+            Assert.IsTrue(areEqual);
+        }
+
+        [TestMethod()]
+        public void Test_GetBoard_From_Move_Right_Tile()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{4,0,6},
+                            new int[]{7,5,8},
+                            };
+            Board initialBoard = new Board(tiles);
+
+            //expected
+            int[][] expectedTiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{4,6,0},
+                            new int[]{7,5,8},
+                            };
+            Board expectedBoard = new Board(expectedTiles);
+
+
+            //actual
+            Board actualBoard = initialBoard.GetBoardFromMoveRightTile();
+
+            bool areEqual = expectedBoard.Equals(actualBoard);
+            Assert.IsTrue(areEqual);
+        }
+
+        [TestMethod()]
+        public void Test_GetBoard_From_Move_Up_Tile()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{4,0,6},
+                            new int[]{7,5,8},
+                            };
+            Board initialBoard = new Board(tiles);
+
+            //expected
+            int[][] expectedTiles = new int[][]{
+                            new int[]{1,0,3},
+                            new int[]{4,2,6},
+                            new int[]{7,5,8},
+                            };
+            Board expectedBoard = new Board(expectedTiles);
+
+
+            //actual
+            Board actualBoard = initialBoard.GetBoardFromMoveUpTile();
+
+            bool areEqual = expectedBoard.Equals(actualBoard);
+            Assert.IsTrue(areEqual);
+        }
+
+        [TestMethod()]
+        public void Test_GetBoard_From_Move_Down_Tile()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{4,0,6},
+                            new int[]{7,5,8},
+                            };
+            Board initialBoard = new Board(tiles);
+
+            //expected
+            int[][] expectedTiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{4,5,6},
+                            new int[]{7,0,8},
+                            };
+            Board expectedBoard = new Board(expectedTiles);
+
+
+            //actual
+            Board actualBoard = initialBoard.GetBoardFromMoveDownTile();
+
+            bool areEqual = expectedBoard.Equals(actualBoard);
+            Assert.IsTrue(areEqual);
+        }
+
+        [TestMethod()]
+        public void Test_GetNextStates_When_NoLeft_Allowed()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{0,4,6},
+                            new int[]{7,5,8},
+                            };
+            Board initialBoard = new Board(tiles);
+
+
+            //expected
+
+            //right
+            Board expectedBoard0 = new Board(
+                 new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{4,0,6},
+                            new int[]{7,5,8},
+                            });
+            //up
+            Board expectedBoard1 = new Board(
+                 new int[][]{
+                            new int[]{0,2,3},
+                            new int[]{1,4,6},
+                            new int[]{7,5,8},
+                            });
+
+            //down
+            Board expectedBoard2 = new Board(
+              new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{7,4,6},
+                            new int[]{0,5,8},
+                            });
+
+
+            //actual
+            List<Board> actualBoards = initialBoard.GetNextStates();
+
+
+            bool areAllOk = actualBoards[0].Equals(expectedBoard0)
+                && actualBoards[1].Equals(expectedBoard1)
+                && actualBoards[2].Equals(expectedBoard2);
+            Assert.IsTrue(areAllOk);
+        }
+
+        [TestMethod()]
+        public void Test_If_IsInSolvableState_Works_For_Odd_Size_Expected_False_1()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{1,2,3},
+                            new int[]{0,4,6},
+                            new int[]{8,5,7},
+                            };
+            Board target = new Board(tiles);
+            bool expected = false;
+            bool actual = target.IsInSolvableState();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void Test_If_IsInSolvableState_Works_For_Odd_Size_Expected_True_1()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{0,1,3},
+                            new int[]{4,2,5},
+                            new int[]{7,8,6},
+                            };
+            Board target = new Board(tiles);
+            bool expected = true;
+            bool actual = target.IsInSolvableState();
+            Assert.AreEqual(expected, actual);
+        }
+
+
+        [TestMethod()]
+        public void Test_If_IsInSolvableState_Works_For_Even_Size_Expected_True_1()
+        {
+            int[][] tiles = new int[][]{
+                            new int[]{1,2,3,4},
+                            new int[]{5,6,0,8},
+                            new int[]{9,10,0,11},
+                            new int[]{13,14,15,12},
+                            };
+
+            Board target = new Board(tiles);
+            bool expected = true;
+            bool actual = target.IsInSolvableState();
             Assert.AreEqual(expected, actual);
         }
     }
