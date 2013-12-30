@@ -33,7 +33,7 @@ namespace AI.EightPuzzle
             {
                 if (_successors == null)
                 {
-                    _successors = this.GetNextSolvableStates();
+                    _successors = this.GetSolvableSuccessorStates();
                 }
                 return _successors;
             }
@@ -44,7 +44,7 @@ namespace AI.EightPuzzle
         /// Generates board states from moving left/right/up/down tiles
         /// </summary>
         /// <returns></returns>
-        public List<Board> GetNextStates()
+        public List<Board> GetSuccessorStates()
         {
             Board board = this;
             List<Board> nextStates = new List<Board>();
@@ -80,9 +80,9 @@ namespace AI.EightPuzzle
             return nextStates;
         }
 
-        public List<Board> GetNextSolvableStates()
+        public List<Board> GetSolvableSuccessorStates()
         {
-            var states = GetNextStates();
+            var states = GetSuccessorStates();
             var solvableStates = states
                                     .Where(s => s.IsSolvable())
                                     .DefaultIfEmpty()
