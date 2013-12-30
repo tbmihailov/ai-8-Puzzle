@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AI.EightPuzzle.Helpers;
 
 namespace AI.EightPuzzle
 {
@@ -24,6 +25,20 @@ namespace AI.EightPuzzle
         {
             get { return _tiles; }
         }
+
+        private List<Board> _successors;
+        public List<Board> Successors
+        {
+            get
+            {
+                if (_successors == null)
+                {
+                    _successors = this.GetNextSolvableStates();
+                }
+                return _successors;
+            }
+        }
+
 
         /// <summary>
         /// Generates board states from moving left/right/up/down tiles
@@ -65,6 +80,17 @@ namespace AI.EightPuzzle
             return nextStates;
         }
 
+        public List<Board> GetNextSolvableStates()
+        {
+            var states = GetNextStates();
+            var solvableStates = states
+                                    .Where(s => s.IsSolvable())
+                                    .DefaultIfEmpty()
+                                    .ToList();
+
+            return solvableStates;
+        }
+
         public Board GetBoardFromMoveLeftTile()
         {
             Board board = this;
@@ -79,7 +105,7 @@ namespace AI.EightPuzzle
                 throw new InvalidOperationException();
             }
 
-            var tiles = board.Tiles;
+            var tiles = board.Tiles.CloneArray();
             int tileToMoveRow = freeTileRow;
             int tileToMoveColumn = freeTileColumn - 1;//left tile
 
@@ -106,7 +132,7 @@ namespace AI.EightPuzzle
                 throw new InvalidOperationException();
             }
 
-            var tiles = board.Tiles;
+            var tiles = board.Tiles.CloneArray();
             int tileToMoveRow = freeTileRow;
             int tileToMoveColumn = freeTileColumn + 1;//right tile
 
@@ -133,7 +159,7 @@ namespace AI.EightPuzzle
                 throw new InvalidOperationException();
             }
 
-            var tiles = board.Tiles;
+            var tiles = board.Tiles.CloneArray();
             int tileToMoveRow = freeTileRow - 1;//up tile
             int tileToMoveColumn = freeTileColumn;
 
@@ -160,7 +186,7 @@ namespace AI.EightPuzzle
                 throw new InvalidOperationException();
             }
 
-            var tiles = board.Tiles;
+            var tiles = board.Tiles.CloneArray();
             int tileToMoveRow = freeTileRow + 1;//down tile
             int tileToMoveColumn = freeTileColumn;
 
@@ -228,7 +254,7 @@ namespace AI.EightPuzzle
             return board;
         }
 
-        public bool IsInGoalState()
+        public bool IsGoal()
         {
             int size = Size;
             for (int row = 0; row < size; row++)
@@ -286,7 +312,7 @@ namespace AI.EightPuzzle
         ///--------------       --------------       --------------       --------------       --------------
         ///       sum = 7              sum = 7              sum = 5              sum = 5              sum = 3
         /// <returns></returns>
-        public bool IsInSolvableState()
+        public bool IsSolvable()
         {
             //filll values in one dimensional array
             List<int> values = new List<int>();
@@ -317,7 +343,7 @@ namespace AI.EightPuzzle
             //check if solvable
             if (Size % 2 != 0)//odd
             {
-                return inversionsCount % 2==0;
+                return inversionsCount % 2 == 0;
             }
             else//even
             {
@@ -340,7 +366,7 @@ namespace AI.EightPuzzle
         /// a small number of moves. 
         /// </summary>
         /// <returns>Number of blocks out of place</returns>
-        public int HammingValue()
+        public int HammingPriority()
         {
             int hammingValue = 0;
             int size = Size;
@@ -370,7 +396,7 @@ namespace AI.EightPuzzle
         /// so far to get to the state. 
         /// </summary>
         /// <returns>Sum of Manhattan distances between blocks and goal</returns>
-        public int ManhattanValue()
+        public int ManhattanPriority()
         {
             int manhattanValue = 0;
             int size = Size;
@@ -415,6 +441,11 @@ namespace AI.EightPuzzle
 
         public bool Equals(Board other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             for (int i = 0; i < Tiles.Length; i++)
             {
                 for (int col = 0; col < Tiles[i].Length; col++)
@@ -434,5 +465,16 @@ namespace AI.EightPuzzle
             bool areBoardsEqual = this.Equals((Board)obj);
             return areBoardsEqual;
         }
+
+        /// <summary>
+        /// Multidimensional array hashcode 
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            int tilesHashCode = ArrayHelpers.GetHashCode(this.Tiles);
+            return tilesHashCode;
+        }
     }
+
 }
