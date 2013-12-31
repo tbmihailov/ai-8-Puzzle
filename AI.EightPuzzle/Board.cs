@@ -8,6 +8,14 @@ using AI.EightPuzzle.Helpers;
 
 namespace AI.EightPuzzle
 {
+    public enum MoveOperation
+    {
+        Left = 0,
+        Right = 1,
+        Up = 2,
+        Down = 3
+    }
+
     public class Board
     {
         public int Size
@@ -91,7 +99,8 @@ namespace AI.EightPuzzle
             return solvableStates;
         }
 
-        public Board GetBoardFromMoveLeftTile()
+
+        public Board GetBoardAfterMove(MoveOperation operation)
         {
             Board board = this;
 
@@ -100,16 +109,52 @@ namespace AI.EightPuzzle
             GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
 
 
-            if (freeTileColumn == 0)
+            int tileToMoveRow = 0;
+            int tileToMoveColumn = 0;
+            switch (operation)
             {
-                throw new InvalidOperationException();
+                case MoveOperation.Left:
+                    if (freeTileColumn == 0)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    tileToMoveRow = freeTileRow;
+                    tileToMoveColumn = freeTileColumn - 1;//left tile
+                    break;
+                case MoveOperation.Right:
+                    if (freeTileColumn >= (board.Size - 1))//last column
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    tileToMoveRow = freeTileRow;
+                    tileToMoveColumn = freeTileColumn + 1;//right tile
+                    break;
+                case MoveOperation.Up:
+                    if (freeTileRow == 0)//zero row
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+
+                    tileToMoveRow = freeTileRow - 1;//up tile
+                    tileToMoveColumn = freeTileColumn;
+                    break;
+                case MoveOperation.Down:
+                    if (freeTileRow >= board.Size - 1)//bottom row
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    tileToMoveRow = freeTileRow + 1;//down tile
+                    tileToMoveColumn = freeTileColumn;
+                    break;
+
             }
 
-            var tiles = board.Tiles.CloneArray();
-            int tileToMoveRow = freeTileRow;
-            int tileToMoveColumn = freeTileColumn - 1;//left tile
-
             //swap tiles position
+            var tiles = board.Tiles.CloneArray();
             int value = tiles[tileToMoveRow][tileToMoveColumn];
             tiles[tileToMoveRow][tileToMoveColumn] = 0;
             tiles[freeTileRow][freeTileColumn] = value;
@@ -117,87 +162,26 @@ namespace AI.EightPuzzle
             var newBoardState = new Board(tiles);
 
             return newBoardState;
+        }
+
+        public Board GetBoardFromMoveLeftTile()
+        {
+            return GetBoardAfterMove(MoveOperation.Left);
         }
 
         public Board GetBoardFromMoveRightTile()
         {
-            Board board = this;
-
-            int freeTileRow = 0;
-            int freeTileColumn = 0;
-            GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
-
-            if (freeTileColumn >= (board.Size - 1))//last column
-            {
-                throw new InvalidOperationException();
-            }
-
-            var tiles = board.Tiles.CloneArray();
-            int tileToMoveRow = freeTileRow;
-            int tileToMoveColumn = freeTileColumn + 1;//right tile
-
-            //swap tiles position
-            int value = tiles[tileToMoveRow][tileToMoveColumn];
-            tiles[tileToMoveRow][tileToMoveColumn] = 0;
-            tiles[freeTileRow][freeTileColumn] = value;
-
-            var newBoardState = new Board(tiles);
-
-            return newBoardState;
+            return GetBoardAfterMove(MoveOperation.Right);
         }
 
         public Board GetBoardFromMoveUpTile()
         {
-            Board board = this;
-
-            int freeTileRow = 0;
-            int freeTileColumn = 0;
-            GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
-
-            if (freeTileRow == 0)//zero row
-            {
-                throw new InvalidOperationException();
-            }
-
-            var tiles = board.Tiles.CloneArray();
-            int tileToMoveRow = freeTileRow - 1;//up tile
-            int tileToMoveColumn = freeTileColumn;
-
-            //swap tiles position
-            int value = tiles[tileToMoveRow][tileToMoveColumn];
-            tiles[tileToMoveRow][tileToMoveColumn] = 0;
-            tiles[freeTileRow][freeTileColumn] = value;
-
-            var newBoardState = new Board(tiles);
-
-            return newBoardState;
+            return GetBoardAfterMove(MoveOperation.Up);
         }
 
         public Board GetBoardFromMoveDownTile()
         {
-            Board board = this;
-
-            int freeTileRow = 0;
-            int freeTileColumn = 0;
-            GetEmptyTilePoint(board, out freeTileRow, out freeTileColumn);
-
-            if (freeTileRow >= board.Size - 1)//bottom row
-            {
-                throw new InvalidOperationException();
-            }
-
-            var tiles = board.Tiles.CloneArray();
-            int tileToMoveRow = freeTileRow + 1;//down tile
-            int tileToMoveColumn = freeTileColumn;
-
-            //swap tiles position
-            int value = tiles[tileToMoveRow][tileToMoveColumn];
-            tiles[tileToMoveRow][tileToMoveColumn] = 0;
-            tiles[freeTileRow][freeTileColumn] = value;
-
-            var newBoardState = new Board(tiles);
-
-            return newBoardState;
+            return GetBoardAfterMove(MoveOperation.Down);
         }
 
         private void GetEmptyTilePoint(Board board, out int zeroRow, out int zeroColumn)
@@ -474,6 +458,18 @@ namespace AI.EightPuzzle
         {
             int tilesHashCode = ArrayHelpers.GetHashCode(this.Tiles);
             return tilesHashCode;
+        }
+
+        public int Priority(PriorityType priorityType)
+        {
+            if (priorityType == PriorityType.Manhattan)
+            {
+                return ManhattanPriority();
+            }
+            else
+            {
+                return HammingPriority();
+            }
         }
     }
 
