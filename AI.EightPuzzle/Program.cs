@@ -8,8 +8,7 @@ namespace AI.EightPuzzle
 {
     class Program
     {
-        //assignment: http://www.cs.princeton.edu/courses/archive/fall12/cos226/assignments/8puzzle.html
-        //http://www.cs.princeton.edu/courses/archive/fall11/cos226/checklist/8puzzle.html
+        //good assignment explanation: http://www.cs.princeton.edu/courses/archive/fall12/cos226/assignments/8puzzle.html
         static void Main(string[] args)
         {
             var initialBoard = new Board(new int[][]{
@@ -18,10 +17,9 @@ namespace AI.EightPuzzle
             new int[]{7,0,1},
             });
 
-            var solver = new Solver(initialBoard, 2000);
-            solver.WriteOutputToConsole();
-
-            Console.ReadLine();
+            var solver = new Solver(initialBoard, 2000, PriorityType.Manhattan);
+            //expected 21
+            solver.WriteOutputWitStatesToConsole();
         }
     }
 }
