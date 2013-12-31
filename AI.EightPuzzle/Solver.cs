@@ -1,6 +1,7 @@
 ﻿using NGenerics.DataStructures.Queues;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,14 +11,15 @@ namespace AI.EightPuzzle
     public class Solver
     {
         Board _initialBoard;
-        public Solver(Board initialBoard, int maxMoves)
+
+        public Solver(Board initialBoard, int maxMoves, PriorityType priorityType)
         {
             _initialBoard = initialBoard;
-            Solve(maxMoves);
+            Solve(initialBoard, maxMoves, priorityType);
         }
 
-        private List<Board> _solution;
-        public List<Board> Solution
+        private State _solution;
+        public State Solution
         {
             get { return _solution; }
         }
@@ -27,44 +29,48 @@ namespace AI.EightPuzzle
         {
             get { return _moves; }
         }
-        
-        private void Solve(int maxMovesCount)
+
+        private int _statesChecked;
+        public int StatesChecked
         {
-            Board currentState = null;
-            Board previousState = null;
-            int movesCount=0;
-            List<Board> solution = new List<Board>();
+            get { return _statesChecked; }
+        }
+        
 
-            PriorityQueue<Board, int> priorityQueue = new PriorityQueue<Board,int>(PriorityQueueType.Minimum);
-            var initialBoard = _initialBoard;
-            priorityQueue.Enqueue(initialBoard, initialBoard.ManhattanPriority());
+        private void Solve(Board initialBoard, int maxMovesCount, PriorityType priorityType)
+        {
+            State currentState = null;
+            int movesCount = 0;
+            int statesChecked = 0;
 
-            while (priorityQueue.Count > 0 && movesCount<maxMovesCount)
+            PriorityQueue<State, int> priorityQueue = new PriorityQueue<State, int>(PriorityQueueType.Minimum);
+            var initialState = new State(initialBoard, null, 0, priorityType);
+
+            priorityQueue.Enqueue(initialState, initialState.Priority());
+            HashSet<Board> closedStates = new HashSet<Board>();
+
+            while (priorityQueue.Count > 0 && movesCount < maxMovesCount)
             {
-                previousState = currentState;
-                
                 currentState = priorityQueue.Dequeue();
-                if (solution.Contains(currentState, new BoardEqualityComparer()))
-                {
-                    continue;
-                }
+                closedStates.Add(currentState.Board);
 
-                solution.Add(currentState);
-                movesCount++;
+                statesChecked++;
+                movesCount = currentState.MovesCount;
                 if (currentState.IsGoal())
                 {
-                    _solution = solution;
-                    _moves = movesCount;
+                    _solution = currentState;
+                    _moves = currentState.MovesCount;
+                    _statesChecked = statesChecked;
                     return;
                 }
                 else
                 {
-                    var successors = currentState.GetSuccessorStates();
-                    foreach(var board in successors)
+                    List<State> successors = currentState.SuccessorStates;
+                    foreach (var state in successors)
                     {
-                        if (!board.Equals(previousState) && !solution.Contains(board, new BoardEqualityComparer()))
+                        if (!closedStates.Contains(state.Board, new BoardEqualityComparer()))
                         {
-                            priorityQueue.Enqueue(board, board.ManhattanPriority());
+                            priorityQueue.Enqueue(state, state.Priority());
                         }
                     }
                 }
@@ -73,16 +79,22 @@ namespace AI.EightPuzzle
             throw new Exception(string.Format("No solution in {0} moves", movesCount));
         }
 
-        public void WriteOutputToConsole()
+
+        public void WriteOutputWitStatesToConsole()
         {
             var solver = this;
             Console.WriteLine("Moves:{0}", solver.Moves);
-            //Console.WriteLine("Solution moves:");
-            //foreach (var board in solver.Solution)
-            //{
-            //    Console.WriteLine(board);
-            //    Console.WriteLine();
-            //}
+            Console.WriteLine("States checked:{0}", solver.StatesChecked);
+            Console.WriteLine("Solution moves:");
+
+            List<State> solutionStates = Solution.GetSolutionStates();
+            foreach (var state in solutionStates)
+            {
+                Console.WriteLine(state.Board);
+                Console.WriteLine("Manhattan:{0}", state.Board.ManhattanPriority());
+                Console.WriteLine("Hamming:{0}", state.Board.HammingPriority());
+                Console.WriteLine();
+            }
         }
     }
 }
